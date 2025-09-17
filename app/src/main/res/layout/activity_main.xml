@@ -33,6 +33,45 @@
         android:layout_weight="1"
         android:layout_marginBottom="16dp" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="8dp"
+        android:background="@android:drawable/dialog_holo_light_frame"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="整理照片至 Work 資料夾"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvDateRange"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="點此設定日期時間範圍"
+                android:gravity="center"
+                android:padding="8dp"/>
+
+            <Button
+                android:id="@+id/btnOrganizePhotos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="開始整理" />
+        </LinearLayout>
+    </LinearLayout>
+
+
     <Button
         android:id="@+id/btnSelectImages"
         android:layout_width="match_parent"
@@ -55,11 +94,11 @@
         android:weightSum="2">
 
         <Button
-            android:id="@+id/btnEmailPdf"
+            android:id="@+id/btnOpenPdf"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/email_pdf"
+            android:text="@string/open_pdf"
             android:enabled="false"
             android:layout_marginEnd="4dp" />
 

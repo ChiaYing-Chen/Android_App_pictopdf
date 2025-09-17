@@ -3,8 +3,8 @@
     <string name="app_name">PictoPDF</string>
     <string name="select_images">選擇照片</string>
     <string name="convert_to_pdf">轉換為PDF</string>
+    <string name="open_pdf">開啟PDF</string>
     <string name="share_pdf">分享PDF</string>
-    <string name="email_pdf">Email PDF</string>
     <string name="no_images_selected">請先選擇照片</string>
     <string name="pdf_created">PDF已建立</string>
     <string name="error_creating_pdf">建立PDF時發生錯誤</string>
@@ -12,8 +12,4 @@
     <string name="converting">正在轉換...</string>
     <string name="compressing_images">正在壓縮照片...</string>
     <string name="selected_images">已選擇 %d 張照片</string>
-    <string name="email_subject">PDF檔案分享</string>
-    <string name="email_body">請查收附件中的PDF檔案。</string>
-    <string name="choose_email_app">選擇Email應用程式</string>
-    <string name="no_email_app">沒有找到Email應用程式</string>
 </resources>
