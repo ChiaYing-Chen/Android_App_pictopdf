@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private var endDateTime = Calendar.getInstance()
     private var isDateRangeSet = false
     
+    private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
+
     private val pdfGenerator = PdfGenerator()
     private val imageCompressor = ImageCompressor()
     
@@ -64,6 +66,16 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
+        intentSenderLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                Toast.makeText(this, "權限已授予，請重新整理", Toast.LENGTH_SHORT).show()
+                // You might want to retry moving the files here, but for simplicity,
+                // we'll just inform the user to try again.
+            } else {
+                Toast.makeText(this, "使用者拒絕了檔案修改權限", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         setupRecyclerView()
         setupClickListeners()
         checkPermissions()
@@ -340,6 +352,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             endDateTime.timeInMillis.toString()
         )
 
+        val urisToModify = mutableListOf<Uri>()
+
         contentResolver.query(collection, projection, selection, selectionArgs, null)?.use { cursor ->
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
             while (cursor.moveToNext()) {
@@ -356,11 +370,38 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                     if (updatedRows > 0) {
                         movedCount++
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (e: SecurityException) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val recoverableSecurityException = e as? RecoverableSecurityException
+                        if (recoverableSecurityException != null) {
+                            urisToModify.add(contentUri)
+                        } else {
+                            throw e
+                        }
+                    } else {
+                        throw e
+                    }
                 }
             }
         }
+
+        if (urisToModify.isNotEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val editPendingIntent = MediaStore.createWriteRequest(contentResolver, urisToModify)
+                val request = IntentSenderRequest.Builder(editPendingIntent.intentSender).build()
+                intentSenderLauncher.launch(request)
+            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+                // For Android 10, we can only request permission for one item at a time.
+                // We'll request for the first one.
+                val firstUri = urisToModify.first()
+                val editPendingIntent = (firstUri as? RecoverableSecurityException)?.userAction?.actionIntent
+                if (editPendingIntent != null) {
+                    val request = IntentSenderRequest.Builder(editPendingIntent.intentSender).build()
+                    intentSenderLauncher.launch(request)
+                }
+            }
+        }
+
         return movedCount
     }
 
