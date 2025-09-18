@@ -31,9 +31,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageAdapter: ImageAdapter
-    private lateinit var pdfAdapter: PdfAdapter
     private val selectedImages = mutableListOf<Uri>()
-    private val generatedPdfFiles = mutableListOf<File>()
     private var startDateTime = Calendar.getInstance()
     private var endDateTime = Calendar.getInstance()
     private var isDateRangeSet = false
@@ -66,12 +64,12 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        setupRecyclerViews()
+        setupRecyclerView()
         setupClickListeners()
         checkPermissions()
     }
     
-    private fun setupRecyclerViews() {
+    private fun setupRecyclerView() {
         imageAdapter = ImageAdapter(this, selectedImages)
         binding.rvImages.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -81,21 +79,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             selectedImages.remove(uri)
             imageAdapter.updateImages(selectedImages)
             updateUI()
-        }
-
-        pdfAdapter = PdfAdapter(generatedPdfFiles)
-        binding.rvPdfs.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = pdfAdapter
-        }
-        pdfAdapter.onOpenClickListener = { file ->
-            openPdf(file)
-        }
-        pdfAdapter.onShareClickListener = { file ->
-            sharePdf(file)
-        }
-        pdfAdapter.onSplitClickListener = { file ->
-            splitPdf(file)
         }
     }
     
@@ -112,14 +95,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             convertToPdf()
         }
 
-        binding.btnOpenPdf.setOnClickListener {
-            // This button is now obsolete, but we keep the listener for safety
-            if (generatedPdfFiles.isNotEmpty()) openPdf(generatedPdfFiles.first())
-        }
-        
-        binding.btnSharePdf.setOnClickListener {
-            // This button is now obsolete, but we keep the listener for safety
-            if (generatedPdfFiles.isNotEmpty()) sharePdf(generatedPdfFiles.first())
+        binding.btnBrowsePdfs.setOnClickListener {
+            val intent = Intent(this, PdfListActivity::class.java)
+            startActivity(intent)
         }
 
         binding.tvDateRange.setOnClickListener {
@@ -179,11 +157,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding.btnConvertToPdf.isEnabled = count > 0
         binding.btnClearSelection.isEnabled = count > 0
 
-        val hasPdfs = generatedPdfFiles.isNotEmpty()
-        binding.llOldButtons.visibility = if (hasPdfs) android.view.View.GONE else android.view.View.VISIBLE
-        binding.tvPdfListTitle.visibility = if (hasPdfs) android.view.View.VISIBLE else android.view.View.GONE
-        binding.rvPdfs.visibility = if (hasPdfs) android.view.View.VISIBLE else android.view.View.GONE
-
         binding.btnOrganizePhotos.isEnabled = isDateRangeSet
     }
     
@@ -221,11 +194,11 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 
                 withContext(Dispatchers.Main) {
                     showProgress(false)
-                    generatedPdfFiles.clear()
-                    generatedPdfFiles.addAll(pdfFiles)
-                    pdfAdapter.updatePdfFiles(generatedPdfFiles)
-                    updateUI()
-                    Toast.makeText(this@MainActivity, "成功產生 ${pdfFiles.size} 個 PDF 檔案", Toast.LENGTH_SHORT).show()
+                    if (pdfFiles.isNotEmpty()) {
+                        Toast.makeText(this@MainActivity, "成功產生 ${pdfFiles.size} 個 PDF 檔案", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MainActivity, "PDF 產生失敗", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 
             } catch (e: Exception) {
@@ -248,6 +221,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding.btnConvertToPdf.isEnabled = !show && selectedImages.isNotEmpty()
         binding.btnClearSelection.isEnabled = !show && selectedImages.isNotEmpty()
         binding.btnOrganizePhotos.isEnabled = !show && isDateRangeSet
+    }
+    
+    private fun showDateTimePicker() {
     }
     
     private fun sharePdf(file: File) {

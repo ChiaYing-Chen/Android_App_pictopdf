@@ -31,6 +31,11 @@
             </intent-filter>
         </activity>
         
+        <activity
+            android:name=".PdfListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PictoPDF" />
+        
         <!-- File provider for sharing PDFs -->
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -20,50 +20,26 @@ class PdfGenerator {
     }
     
     suspend fun createPdfFromImages(context: Context, imageFiles: List<File>): List<File> {
-        val pdfFiles = mutableListOf<File>()
-        if (imageFiles.isEmpty()) return pdfFiles
-
-        var currentPdfFile: File? = null
-        var currentPdfWriter: PdfWriter? = null
-        var currentPdfDocument: PdfDocument? = null
-        var currentDocument: Document? = null
-        var fileIndex = 1
-
-        fun createNewPdf() {
-            currentDocument?.close()
-            currentPdfDocument?.close()
-            currentPdfWriter?.close()
-
-            val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-            val timestamp = dateFormat.format(Date())
-            val pdfFileName = "PictoPDF_${timestamp}_$fileIndex.pdf"
-            fileIndex++
-
-            val pdfFile = File(context.getExternalFilesDir(null), pdfFileName)
-            pdfFiles.add(pdfFile)
-            currentPdfFile = pdfFile
-            currentPdfWriter = PdfWriter(FileOutputStream(pdfFile))
-            currentPdfDocument = PdfDocument(currentPdfWriter!!)
-            currentDocument = Document(currentPdfDocument!!)
-        }
-
-        createNewPdf()
-
+        val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+        val timestamp = dateFormat.format(Date())
+        val pdfFileName = "PictoPDF_$timestamp.pdf"
+        
+        val pdfFile = File(context.getExternalFilesDir(null), pdfFileName)
+        val pdfWriter = PdfWriter(FileOutputStream(pdfFile))
+        val pdfDocument = PdfDocument(pdfWriter)
+        val document = Document(pdfDocument)
+        
         try {
-            for (imageFile in imageFiles) {
-                // Check if adding the next image would exceed the size limit
-                if (currentPdfFile!!.length() + imageFile.length() > MAX_PDF_SIZE_BYTES && currentPdfFile!!.length() > 0) {
-                    createNewPdf()
-                }
-                addImageToDocument(currentDocument!!, imageFile)
+            imageFiles.forEach { imageFile ->
+                addImageToDocument(document, imageFile)
             }
         } finally {
-            currentDocument?.close()
-            currentPdfDocument?.close()
-            currentPdfWriter?.close()
+            document.close()
+            pdfDocument.close()
+            pdfWriter.close()
         }
         
-        return pdfFiles
+        return listOf(pdfFile)
     }
     
     private fun addImageToDocument(document: Document, imageFile: File) {

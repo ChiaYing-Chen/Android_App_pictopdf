@@ -33,30 +33,6 @@
         android:layout_weight="1"
         android:layout_marginBottom="16dp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/tvPdfListTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="產生的 PDF 檔案"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_marginBottom="8dp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvPdfs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="150dp"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -163,32 +139,12 @@
         android:enabled="false"
         android:layout_marginBottom="8dp" />
 
-    <LinearLayout
-        android:id="@+id/llOldButtons"
+    <Button
+        android:id="@+id/btnBrowsePdfs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-
-        <Button
-            android:id="@+id/btnOpenPdf"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/open_pdf"
-            android:enabled="false"
-            android:layout_marginEnd="4dp" />
-
-        <Button
-            android:id="@+id/btnSharePdf"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/share_pdf"
-            android:enabled="false"
-            android:layout_marginStart="4dp" />
-
-    </LinearLayout>
+        android:text="瀏覽PDF清單"
+        android:layout_marginBottom="8dp" />
 
     <ProgressBar
         android:id="@+id/progressBar"
