@@ -25,7 +25,7 @@ object PdfSplitter {
                     tempFile = File(context, getSplitFileName(pdfFile, partIndex))
                     val writer = PdfWriter(FileOutputStream(tempFile))
                     val splitDoc = PdfDocument(writer)
-                    pdfDoc.copyPagesTo(startPage..endPage, splitDoc)
+                    pdfDoc.copyPagesTo((startPage..endPage).toList(), splitDoc)
                     splitDoc.close()
                     writer.close()
                     // 若檔案超過 maxSizeBytes 且頁數大於1，則減少頁數
