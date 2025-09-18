@@ -67,7 +67,7 @@
                 android:id="@+id/btnOrganizePhotos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="開始整理" />
+                android:text="依時間篩選照片" />
         </LinearLayout>
     </LinearLayout>
 

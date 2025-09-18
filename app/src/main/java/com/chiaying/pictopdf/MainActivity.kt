@@ -36,18 +36,17 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private var startDateTime = Calendar.getInstance()
     private var endDateTime = Calendar.getInstance()
     private var isDateRangeSet = false
-    
-    private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
 
     private val pdfGenerator = PdfGenerator()
     private val imageCompressor = ImageCompressor()
     
     companion object {
         private const val PERMISSION_REQUEST_CODE = 100
-        private val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.READ_MEDIA_IMAGES
-        )
+        private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
     
     private val imagePickerLauncher = registerForActivityResult(
@@ -66,16 +65,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        intentSenderLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                Toast.makeText(this, "權限已授予，請重新整理", Toast.LENGTH_SHORT).show()
-                // You might want to retry moving the files here, but for simplicity,
-                // we'll just inform the user to try again.
-            } else {
-                Toast.makeText(this, "使用者拒絕了檔案修改權限", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         setupRecyclerView()
         setupClickListeners()
         checkPermissions()
@@ -115,41 +104,30 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         }
 
         binding.btnOrganizePhotos.setOnClickListener {
-            organizePhotos()
+            filterPhotosByDate()
         }
     }
     
     private fun checkPermissions() {
         if (!hasPermissions()) {
             requestPermissions()
-        } else {
-            loadPhotosFromWorkFolder()
         }
     }
     
     private fun hasPermissions(): Boolean {
-        val readPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
         } else {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         }
-        val writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-        return readPermission == PackageManager.PERMISSION_GRANTED && writePermission == PackageManager.PERMISSION_GRANTED
     }
     
     private fun requestPermissions() {
-        val permissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        } else {
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-        
         EasyPermissions.requestPermissions(
             this,
             getString(R.string.permission_required),
             PERMISSION_REQUEST_CODE,
-            *permissions
+            *REQUIRED_PERMISSIONS
         )
     }
     
@@ -310,107 +288,21 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding.tvDateRange.text = "$startStr - $endStr"
     }
 
-    private fun organizePhotos() {
+    private fun filterPhotosByDate() {
         if (!isDateRangeSet) {
             Toast.makeText(this, "請先設定日期時間範圍", Toast.LENGTH_SHORT).show()
             return
         }
         if (!hasPermissions()) {
-            Toast.makeText(this, "需要儲存權限才能整理照片", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "需要讀取權限才能篩選照片", Toast.LENGTH_SHORT).show()
             requestPermissions()
             return
         }
 
-        showProgress(true, "正在整理照片...")
+        showProgress(true, "正在篩選照片...")
 
         CoroutineScope(Dispatchers.IO).launch {
-            val movedCount = movePhotosToWorkFolder()
-            withContext(Dispatchers.Main) {
-                showProgress(false)
-                Toast.makeText(this@MainActivity, "成功移動 $movedCount 張照片至 Work 資料夾", Toast.LENGTH_LONG).show()
-                loadPhotosFromWorkFolder() // Refresh the list
-            }
-        }
-    }
-
-    private fun movePhotosToWorkFolder(): Int {
-        var movedCount = 0
-        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DATE_TAKEN
-        )
-
-        val selection = "${MediaStore.Images.Media.DATE_TAKEN} >= ? AND ${MediaStore.Images.Media.DATE_TAKEN} <= ?"
-        val selectionArgs = arrayOf(
-            startDateTime.timeInMillis.toString(),
-            endDateTime.timeInMillis.toString()
-        )
-
-        val urisToModify = mutableListOf<Uri>()
-
-        contentResolver.query(collection, projection, selection, selectionArgs, null)?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idColumn)
-                val contentUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
-
-                try {
-                    val values = ContentValues().apply {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Work")
-                        }
-                    }
-                    val updatedRows = contentResolver.update(contentUri, values, null, null)
-                    if (updatedRows > 0) {
-                        movedCount++
-                    }
-                } catch (e: SecurityException) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        val recoverableSecurityException = e as? RecoverableSecurityException
-                        if (recoverableSecurityException != null) {
-                            urisToModify.add(contentUri)
-                        } else {
-                            throw e
-                        }
-                    } else {
-                        throw e
-                    }
-                }
-            }
-        }
-
-        if (urisToModify.isNotEmpty()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val editPendingIntent = MediaStore.createWriteRequest(contentResolver, urisToModify)
-                val request = IntentSenderRequest.Builder(editPendingIntent.intentSender).build()
-                intentSenderLauncher.launch(request)
-            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                // For Android 10, we can only request permission for one item at a time.
-                // We'll request for the first one.
-                val firstUri = urisToModify.first()
-                val editPendingIntent = (firstUri as? RecoverableSecurityException)?.userAction?.actionIntent
-                if (editPendingIntent != null) {
-                    val request = IntentSenderRequest.Builder(editPendingIntent.intentSender).build()
-                    intentSenderLauncher.launch(request)
-                }
-            }
-        }
-
-        return movedCount
-    }
-
-    private fun loadPhotosFromWorkFolder() {
-        if (!hasPermissions()) {
-            return // Don't load if permissions are not granted
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            val workPhotos = mutableListOf<Uri>()
+            val filteredPhotos = mutableListOf<Uri>()
             val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
             } else {
@@ -418,30 +310,35 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             }
 
             val projection = arrayOf(MediaStore.Images.Media._ID)
-            val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
-            val selectionArgs = arrayOf("%Pictures/Work%")
+            val selection = "${MediaStore.Images.Media.DATE_TAKEN} >= ? AND ${MediaStore.Images.Media.DATE_TAKEN} <= ?"
+            val selectionArgs = arrayOf(
+                startDateTime.timeInMillis.toString(),
+                endDateTime.timeInMillis.toString()
+            )
 
             contentResolver.query(collection, projection, selection, selectionArgs, "${MediaStore.Images.Media.DATE_TAKEN} DESC")?.use { cursor ->
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idColumn)
                     val contentUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
-                    workPhotos.add(contentUri)
+                    filteredPhotos.add(contentUri)
                 }
             }
 
             withContext(Dispatchers.Main) {
+                showProgress(false)
                 selectedImages.clear()
-                selectedImages.addAll(workPhotos)
+                selectedImages.addAll(filteredPhotos)
                 imageAdapter.updateImages(selectedImages)
                 updateUI()
+                Toast.makeText(this@MainActivity, "篩選出 ${filteredPhotos.size} 張照片", Toast.LENGTH_LONG).show()
             }
         }
     }
     
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-        // Permissions granted
-        loadPhotosFromWorkFolder()
+        // Permissions granted, user can now use the features
+        Toast.makeText(this, "權限已授予", Toast.LENGTH_SHORT).show()
     }
     
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
