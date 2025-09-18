@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Legacy colors -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -8,12 +9,28 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- 莫蘭迪色系 -->
-    <color name="morandi_green">#8FBC8F</color>          <!-- 莫蘭迪綠色 -->
-    <color name="morandi_green_dark">#6B8E6B</color>     <!-- 深一點的莫蘭迪綠色 -->
-    <color name="morandi_green_light">#A8CCA8</color>    <!-- 淺一點的莫蘭迪綠色 -->
-    <color name="off_white">#F5F5F5</color>              <!-- 灰白色背景 -->
-    <color name="light_gray">#EEEEEE</color>             <!-- 淺灰色 -->
-    <color name="dark_green">#4A6741</color>             <!-- 深綠色標題背景 -->
-    <color name="dark_text">#333333</color>              <!-- 深色文字 -->
+    <!-- Material 3 dynamic color fallbacks for Android < 12 -->
+    <color name="material_dynamic_primary40">#6750A4</color>
+    <color name="material_dynamic_primary100">#FFFFFF</color>
+    <color name="material_dynamic_primary90">#EADDFF</color>
+    <color name="material_dynamic_primary10">#21005D</color>
+    
+    <color name="material_dynamic_secondary40">#625B71</color>
+    <color name="material_dynamic_secondary100">#FFFFFF</color>
+    <color name="material_dynamic_secondary90">#E8DEF8</color>
+    <color name="material_dynamic_secondary10">#1D192B</color>
+    
+    <color name="material_dynamic_neutral95">#FFFBFE</color>
+    <color name="material_dynamic_neutral10">#1C1B1F</color>
+    <color name="material_dynamic_neutral_variant90">#E7E0EC</color>
+    <color name="material_dynamic_neutral_variant30">#49454F</color>
+    
+    <!-- 保留莫蘭迪色系作為備用 -->
+    <color name="morandi_green">#8FBC8F</color>
+    <color name="morandi_green_dark">#6B8E6B</color>
+    <color name="morandi_green_light">#A8CCA8</color>
+    <color name="off_white">#F5F5F5</color>
+    <color name="light_gray">#EEEEEE</color>
+    <color name="dark_green">#4A6741</color>
+    <color name="dark_text">#333333</color>
 </resources>

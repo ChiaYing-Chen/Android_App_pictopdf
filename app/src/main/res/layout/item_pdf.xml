@@ -30,7 +30,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="開啟"
-        android:backgroundTint="@color/morandi_green"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_marginStart="8dp"/>
 
@@ -39,7 +38,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="分享"
-        android:backgroundTint="@color/morandi_green"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_marginStart="4dp"/>
 
@@ -48,7 +46,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="分割"
-        android:backgroundTint="@color/morandi_green"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_marginStart="4dp"/>
 

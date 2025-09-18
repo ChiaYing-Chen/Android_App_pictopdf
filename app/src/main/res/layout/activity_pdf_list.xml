@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/off_white">
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +18,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="返回"
-            android:backgroundTint="@color/morandi_green"
             style="?android:attr/buttonBarButtonStyle" />
 
         <TextView
@@ -28,6 +27,7 @@
             android:text="PDF 檔案清單"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
             android:gravity="center" />
 
         <View

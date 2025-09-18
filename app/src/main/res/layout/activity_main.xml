@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/off_white"
+    android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
     <TextView
@@ -15,8 +15,8 @@
         android:text="@string/app_name"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
-        android:background="@color/dark_green"
+        android:textColor="?attr/colorOnPrimary"
+        android:background="?attr/colorPrimary"
         android:gravity="center"
         android:padding="16dp"
         android:layout_marginBottom="24dp" />
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginBottom="8dp"
-        android:background="@color/light_gray"
+        android:background="?attr/colorSurfaceVariant"
         android:padding="8dp">
 
         <TextView
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:text="時間範圍"
             android:textStyle="bold"
-            android:textColor="@color/dark_text"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="點此設定日期時間範圍"
-                android:textColor="@color/dark_text"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:gravity="center"
                 android:padding="8dp"/>
 
@@ -73,8 +73,7 @@
                 android:id="@+id/btnOrganizePhotos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="依時間篩選照片"
-                android:backgroundTint="@color/morandi_green" />
+                android:text="依時間篩選照片" />
         </LinearLayout>
     </LinearLayout>
 
@@ -83,8 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/select_images"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/morandi_green" />
+        android:layout_marginBottom="8dp" />
 
     <Button
         android:id="@+id/btnClearSelection"
@@ -92,15 +90,14 @@
         android:layout_height="wrap_content"
         android:text="清除所有已選擇的照片"
         android:layout_marginBottom="8dp"
-        android:enabled="false"
-        android:backgroundTint="@color/morandi_green" />
+        android:enabled="false" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginBottom="8dp"
-        android:background="@color/light_gray"
+        android:background="?attr/colorSurfaceVariant"
         android:padding="8dp">
 
         <TextView
@@ -108,7 +105,7 @@
             android:layout_height="wrap_content"
             android:text="壓縮選項"
             android:textStyle="bold"
-            android:textColor="@color/dark_text"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:layout_marginBottom="8dp"/>
 
         <RadioGroup
@@ -123,7 +120,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="不壓縮"
-                android:textColor="@color/dark_text" />
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
             <RadioButton
                 android:id="@+id/rbMediumCompression"
@@ -131,7 +128,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="中等壓縮"
-                android:textColor="@color/dark_text" />
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
             <RadioButton
                 android:id="@+id/rbMinCompression"
@@ -139,7 +136,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="最小壓縮"
-                android:textColor="@color/dark_text"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:checked="true" />
         </RadioGroup>
     </LinearLayout>
@@ -150,16 +147,14 @@
         android:layout_height="wrap_content"
         android:text="@string/convert_to_pdf"
         android:enabled="false"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/morandi_green" />
+        android:layout_marginBottom="8dp" />
 
     <Button
         android:id="@+id/btnBrowsePdfs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="瀏覽PDF清單"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/morandi_green" />
+        android:layout_marginBottom="8dp" />
 
     <ProgressBar
         android:id="@+id/progressBar"

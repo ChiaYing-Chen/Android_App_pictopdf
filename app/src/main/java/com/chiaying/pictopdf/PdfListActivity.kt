@@ -60,19 +60,56 @@ class PdfListActivity : AppCompatActivity() {
     }
     
     private fun loadPdfFiles() {
-        val pdfDirectory = getExternalFilesDir(null)
+        // 使用Application Context確保路徑一致性
+        val appContext = applicationContext
+        val pdfDirectory = appContext.getExternalFilesDir(null)
+        
+        // 詳細調試日誌
+        android.util.Log.d("PdfListActivity", "=== PDF 清單載入開始 ===")
+        android.util.Log.d("PdfListActivity", "Activity類型: ${this.javaClass.simpleName}")
+        android.util.Log.d("PdfListActivity", "Application Context類型: ${appContext.javaClass.simpleName}")
+        android.util.Log.d("PdfListActivity", "PDF目錄: $pdfDirectory")
+        android.util.Log.d("PdfListActivity", "目錄是否存在: ${pdfDirectory?.exists()}")
+        android.util.Log.d("PdfListActivity", "目錄是否可讀: ${pdfDirectory?.canRead()}")
         
         if (pdfDirectory != null && pdfDirectory.exists()) {
-            val files = pdfDirectory.listFiles { file ->
-                file.isFile && file.extension.lowercase() == "pdf"
+            // 列出所有檔案
+            val allFiles = pdfDirectory.listFiles()
+            android.util.Log.d("PdfListActivity", "目錄中總檔案數: ${allFiles?.size}")
+            
+            allFiles?.forEach { file ->
+                android.util.Log.d("PdfListActivity", "檔案: ${file.name}")
+                android.util.Log.d("PdfListActivity", "  - 大小: ${file.length()} bytes")
+                android.util.Log.d("PdfListActivity", "  - 副檔名: ${file.extension}")
+                android.util.Log.d("PdfListActivity", "  - 是否為PDF: ${file.extension.lowercase() == "pdf"}")
+                android.util.Log.d("PdfListActivity", "  - 是否為檔案: ${file.isFile}")
+                android.util.Log.d("PdfListActivity", "  - 最後修改: ${java.util.Date(file.lastModified())}")
             }
+            
+            // 過濾PDF檔案
+            val files = pdfDirectory.listFiles { file ->
+                val isPdf = file.isFile && file.extension.lowercase() == "pdf"
+                android.util.Log.d("PdfListActivity", "過濾檔案 ${file.name}: isPdf=$isPdf")
+                isPdf
+            }
+            
             if (files != null) {
                 pdfFiles.clear()
                 pdfFiles.addAll(files.sortedByDescending { it.lastModified() })
                 pdfAdapter.updatePdfFiles(pdfFiles)
+                android.util.Log.d("PdfListActivity", "找到 ${pdfFiles.size} 個PDF檔案")
+                
+                pdfFiles.forEach { file ->
+                    android.util.Log.d("PdfListActivity", "PDF清單: ${file.name} (${file.length()} bytes)")
+                }
+            } else {
+                android.util.Log.w("PdfListActivity", "listFiles() 返回 null")
             }
+        } else {
+            android.util.Log.e("PdfListActivity", "目錄不存在或無法存取: $pdfDirectory")
         }
         
+        android.util.Log.d("PdfListActivity", "=== PDF 清單載入完成 ===")
         updateUI()
     }
     
