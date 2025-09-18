@@ -25,6 +25,7 @@ class PdfGenerator {
         val pdfFileName = "PictoPDF_$timestamp.pdf"
         
         val pdfFile = File(context.getExternalFilesDir(null), pdfFileName)
+        
         val pdfWriter = PdfWriter(FileOutputStream(pdfFile))
         val pdfDocument = PdfDocument(pdfWriter)
         val document = Document(pdfDocument)

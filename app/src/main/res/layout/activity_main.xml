@@ -15,7 +15,10 @@
         android:text="@string/app_name"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="@color/dark_green"
         android:gravity="center"
+        android:padding="16dp"
         android:layout_marginBottom="24dp" />
 
     <TextView
@@ -47,6 +50,7 @@
             android:layout_height="wrap_content"
             android:text="時間範圍"
             android:textStyle="bold"
+            android:textColor="@color/dark_text"
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
@@ -61,6 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="點此設定日期時間範圍"
+                android:textColor="@color/dark_text"
                 android:gravity="center"
                 android:padding="8dp"/>
 
@@ -74,20 +79,20 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/btnSelectImages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_images"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/morandi_green" />
+
+    <Button
         android:id="@+id/btnClearSelection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="清除所有已選擇的照片"
         android:layout_marginBottom="8dp"
         android:enabled="false"
-        android:backgroundTint="@color/morandi_green" />
-
-    <Button
-        android:id="@+id/btnSelectImages"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/select_images"
-        android:layout_marginBottom="8dp"
         android:backgroundTint="@color/morandi_green" />
 
     <LinearLayout
@@ -103,6 +108,7 @@
             android:layout_height="wrap_content"
             android:text="壓縮選項"
             android:textStyle="bold"
+            android:textColor="@color/dark_text"
             android:layout_marginBottom="8dp"/>
 
         <RadioGroup
@@ -116,14 +122,16 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="不壓縮" />
+                android:text="不壓縮"
+                android:textColor="@color/dark_text" />
 
             <RadioButton
                 android:id="@+id/rbMediumCompression"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="中等壓縮" />
+                android:text="中等壓縮"
+                android:textColor="@color/dark_text" />
 
             <RadioButton
                 android:id="@+id/rbMinCompression"
@@ -131,6 +139,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="最小壓縮"
+                android:textColor="@color/dark_text"
                 android:checked="true" />
         </RadioGroup>
     </LinearLayout>

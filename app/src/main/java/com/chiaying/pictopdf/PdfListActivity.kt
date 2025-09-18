@@ -61,6 +61,7 @@ class PdfListActivity : AppCompatActivity() {
     
     private fun loadPdfFiles() {
         val pdfDirectory = getExternalFilesDir(null)
+        
         if (pdfDirectory != null && pdfDirectory.exists()) {
             val files = pdfDirectory.listFiles { file ->
                 file.isFile && file.extension.lowercase() == "pdf"

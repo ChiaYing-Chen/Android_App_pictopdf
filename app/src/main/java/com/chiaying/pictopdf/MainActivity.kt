@@ -196,6 +196,10 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                     showProgress(false)
                     if (pdfFiles.isNotEmpty()) {
                         Toast.makeText(this@MainActivity, "成功產生 ${pdfFiles.size} 個 PDF 檔案", Toast.LENGTH_SHORT).show()
+                        
+                        // 轉換成功後直接跳轉到PDF清單頁面
+                        val intent = Intent(this@MainActivity, PdfListActivity::class.java)
+                        startActivity(intent)
                     } else {
                         Toast.makeText(this@MainActivity, "PDF 產生失敗", Toast.LENGTH_SHORT).show()
                     }

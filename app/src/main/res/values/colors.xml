@@ -14,4 +14,6 @@
     <color name="morandi_green_light">#A8CCA8</color>    <!-- 淺一點的莫蘭迪綠色 -->
     <color name="off_white">#F5F5F5</color>              <!-- 灰白色背景 -->
     <color name="light_gray">#EEEEEE</color>             <!-- 淺灰色 -->
+    <color name="dark_green">#4A6741</color>             <!-- 深綠色標題背景 -->
+    <color name="dark_text">#333333</color>              <!-- 深色文字 -->
 </resources>
