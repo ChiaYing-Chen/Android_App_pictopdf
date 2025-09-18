@@ -223,9 +223,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding.btnOrganizePhotos.isEnabled = !show && isDateRangeSet
     }
     
-    private fun showDateTimePicker() {
-    }
-    
     private fun sharePdf(file: File) {
         val fileUri = FileProvider.getUriForFile(
             this,
@@ -349,23 +346,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 imageAdapter.updateImages(selectedImages)
                 updateUI()
                 Toast.makeText(this@MainActivity, "篩選出 ${filteredPhotos.size} 張照片", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-    
-    private fun splitPdf(file: File) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val splitFiles = PdfSplitter.splitPdfBySize(file, 12 * 1024 * 1024)
-            withContext(Dispatchers.Main) {
-                if (splitFiles.isNotEmpty()) {
-                    generatedPdfFiles.clear()
-                    generatedPdfFiles.addAll(splitFiles)
-                    pdfAdapter.updatePdfFiles(generatedPdfFiles)
-                    updateUI()
-                    Toast.makeText(this@MainActivity, "分割完成，共 ${splitFiles.size} 個檔案", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@MainActivity, "分割失敗，請確認檔案格式", Toast.LENGTH_SHORT).show()
-                }
             }
         }
     }
