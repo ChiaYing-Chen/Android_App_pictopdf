@@ -33,6 +33,30 @@
         android:layout_weight="1"
         android:layout_marginBottom="16dp" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvPdfListTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="產生的 PDF 檔案"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPdfs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="150dp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -44,7 +68,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="整理照片至 Work 資料夾"
+            android:text="時間範圍"
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
 
@@ -71,6 +95,13 @@
         </LinearLayout>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btnClearSelection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="清除所有已選擇的照片"
+        android:layout_marginBottom="8dp"
+        android:enabled="false" />
 
     <Button
         android:id="@+id/btnSelectImages"
@@ -78,6 +109,51 @@
         android:layout_height="wrap_content"
         android:text="@string/select_images"
         android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="8dp"
+        android:background="@android:drawable/dialog_holo_light_frame"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="壓縮選項"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioGroup
+            android:id="@+id/rgCompression"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbNoCompression"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="不壓縮" />
+
+            <RadioButton
+                android:id="@+id/rbMediumCompression"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="中等壓縮" />
+
+            <RadioButton
+                android:id="@+id/rbMinCompression"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="最小壓縮"
+                android:checked="true" />
+        </RadioGroup>
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnConvertToPdf"
@@ -88,6 +164,7 @@
         android:layout_marginBottom="8dp" />
 
     <LinearLayout
+        android:id="@+id/llOldButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"

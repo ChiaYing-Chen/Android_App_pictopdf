@@ -26,4 +26,14 @@
         android:maxLines="2"
         android:ellipsize="end" />
 
+    <ImageButton
+        android:id="@+id/btnRemoveImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Remove Image" />
+
 </RelativeLayout>

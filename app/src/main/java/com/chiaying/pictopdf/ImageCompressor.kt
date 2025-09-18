@@ -12,19 +12,24 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 class ImageCompressor {
+
+    enum class CompressionLevel(val quality: Int) {
+        NONE(100),
+        MEDIUM(80),
+        MINIMUM(50)
+    }
     
     companion object {
         private const val MAX_WIDTH = 1200
         private const val MAX_HEIGHT = 1600
-        private const val QUALITY = 80
     }
     
-    suspend fun compressImages(context: Context, imageUris: List<Uri>): List<File> {
+    suspend fun compressImages(context: Context, imageUris: List<Uri>, compressionLevel: CompressionLevel): List<File> {
         val compressedFiles = mutableListOf<File>()
         
         imageUris.forEachIndexed { index, uri ->
             try {
-                val compressedFile = compressImage(context, uri, index)
+                val compressedFile = compressImage(context, uri, index, compressionLevel)
                 compressedFile?.let { compressedFiles.add(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -34,8 +39,19 @@ class ImageCompressor {
         return compressedFiles
     }
     
-    private suspend fun compressImage(context: Context, uri: Uri, index: Int): File? {
+    private suspend fun compressImage(context: Context, uri: Uri, index: Int, compressionLevel: CompressionLevel): File? {
         try {
+            if (compressionLevel == CompressionLevel.NONE) {
+                // For "No Compression", just copy the file to cache to get a File object
+                val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+                val tempFile = File(context.cacheDir, "image_$index.jpg")
+                val outputStream = FileOutputStream(tempFile)
+                inputStream.copyTo(outputStream)
+                inputStream.close()
+                outputStream.close()
+                return tempFile
+            }
+
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
             
             // Decode the image with proper scaling
@@ -67,7 +83,7 @@ class ImageCompressor {
             val compressedFile = File(context.cacheDir, "compressed_image_$index.jpg")
             val outputStream = FileOutputStream(compressedFile)
             
-            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, outputStream)
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, compressionLevel.quality, outputStream)
             outputStream.close()
             
             // Clean up bitmaps

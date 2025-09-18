@@ -31,8 +31,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageAdapter: ImageAdapter
+    private lateinit var pdfAdapter: PdfAdapter
     private val selectedImages = mutableListOf<Uri>()
-    private var generatedPdfFile: File? = null
+    private val generatedPdfFiles = mutableListOf<File>()
     private var startDateTime = Calendar.getInstance()
     private var endDateTime = Calendar.getInstance()
     private var isDateRangeSet = false
@@ -65,16 +66,33 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        setupRecyclerView()
+        setupRecyclerViews()
         setupClickListeners()
         checkPermissions()
     }
     
-    private fun setupRecyclerView() {
+    private fun setupRecyclerViews() {
         imageAdapter = ImageAdapter(this, selectedImages)
         binding.rvImages.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = imageAdapter
+        }
+        imageAdapter.onRemoveClickListener = { uri ->
+            selectedImages.remove(uri)
+            imageAdapter.updateImages(selectedImages)
+            updateUI()
+        }
+
+        pdfAdapter = PdfAdapter(generatedPdfFiles)
+        binding.rvPdfs.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = pdfAdapter
+        }
+        pdfAdapter.onOpenClickListener = { file ->
+            openPdf(file)
+        }
+        pdfAdapter.onShareClickListener = { file ->
+            sharePdf(file)
         }
     }
     
@@ -92,11 +110,13 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         }
 
         binding.btnOpenPdf.setOnClickListener {
-            openPdf()
+            // This button is now obsolete, but we keep the listener for safety
+            if (generatedPdfFiles.isNotEmpty()) openPdf(generatedPdfFiles.first())
         }
         
         binding.btnSharePdf.setOnClickListener {
-            shareGenerally()
+            // This button is now obsolete, but we keep the listener for safety
+            if (generatedPdfFiles.isNotEmpty()) sharePdf(generatedPdfFiles.first())
         }
 
         binding.tvDateRange.setOnClickListener {
@@ -105,6 +125,10 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
         binding.btnOrganizePhotos.setOnClickListener {
             filterPhotosByDate()
+        }
+
+        binding.btnClearSelection.setOnClickListener {
+            clearSelectedImages()
         }
     }
     
@@ -134,6 +158,12 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private fun openImagePicker() {
         imagePickerLauncher.launch("image/*")
     }
+
+    private fun clearSelectedImages() {
+        selectedImages.clear()
+        imageAdapter.updateImages(selectedImages)
+        updateUI()
+    }
     
     private fun updateUI() {
         val count = selectedImages.size
@@ -144,10 +174,13 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         }
         
         binding.btnConvertToPdf.isEnabled = count > 0
-        
-        val hasPdf = generatedPdfFile?.exists() == true
-        binding.btnOpenPdf.isEnabled = hasPdf
-        binding.btnSharePdf.isEnabled = hasPdf
+        binding.btnClearSelection.isEnabled = count > 0
+
+        val hasPdfs = generatedPdfFiles.isNotEmpty()
+        binding.llOldButtons.visibility = if (hasPdfs) android.view.View.GONE else android.view.View.VISIBLE
+        binding.tvPdfListTitle.visibility = if (hasPdfs) android.view.View.VISIBLE else android.view.View.GONE
+        binding.rvPdfs.visibility = if (hasPdfs) android.view.View.VISIBLE else android.view.View.GONE
+
         binding.btnOrganizePhotos.isEnabled = isDateRangeSet
     }
     
@@ -161,13 +194,19 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                val compressionLevel = when (binding.rgCompression.checkedRadioButtonId) {
+                    R.id.rbNoCompression -> ImageCompressor.CompressionLevel.NONE
+                    R.id.rbMediumCompression -> ImageCompressor.CompressionLevel.MEDIUM
+                    else -> ImageCompressor.CompressionLevel.MINIMUM
+                }
+
                 // Update progress for compression
                 withContext(Dispatchers.Main) {
                     binding.tvProgress.text = getString(R.string.compressing_images)
                 }
                 
                 // Compress images
-                val compressedImages = imageCompressor.compressImages(this@MainActivity, selectedImages)
+                val compressedImages = imageCompressor.compressImages(this@MainActivity, selectedImages, compressionLevel)
                 
                 // Update progress for PDF generation
                 withContext(Dispatchers.Main) {
@@ -175,13 +214,15 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 }
                 
                 // Generate PDF
-                val pdfFile = pdfGenerator.createPdfFromImages(this@MainActivity, compressedImages)
+                val pdfFiles = pdfGenerator.createPdfFromImages(this@MainActivity, compressedImages)
                 
                 withContext(Dispatchers.Main) {
                     showProgress(false)
-                    generatedPdfFile = pdfFile
+                    generatedPdfFiles.clear()
+                    generatedPdfFiles.addAll(pdfFiles)
+                    pdfAdapter.updatePdfFiles(generatedPdfFiles)
                     updateUI()
-                    Toast.makeText(this@MainActivity, getString(R.string.pdf_created), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "成功產生 ${pdfFiles.size} 個 PDF 檔案", Toast.LENGTH_SHORT).show()
                 }
                 
             } catch (e: Exception) {
@@ -202,46 +243,43 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         // Disable buttons during processing
         binding.btnSelectImages.isEnabled = !show
         binding.btnConvertToPdf.isEnabled = !show && selectedImages.isNotEmpty()
+        binding.btnClearSelection.isEnabled = !show && selectedImages.isNotEmpty()
         binding.btnOrganizePhotos.isEnabled = !show && isDateRangeSet
     }
     
-    private fun shareGenerally() {
-        generatedPdfFile?.let { file ->
-            val fileUri = FileProvider.getUriForFile(
-                this,
-                "com.chiaying.pictopdf.fileprovider",
-                file
-            )
-            
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/pdf"
-                putExtra(Intent.EXTRA_STREAM, fileUri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            
-            val chooser = Intent.createChooser(shareIntent, getString(R.string.share_pdf))
-            startActivity(chooser)
+    private fun sharePdf(file: File) {
+        val fileUri = FileProvider.getUriForFile(
+            this,
+            "com.chiaying.pictopdf.fileprovider",
+            file
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
+
+        val chooser = Intent.createChooser(shareIntent, getString(R.string.share_pdf))
+        startActivity(chooser)
     }
     
-    private fun openPdf() {
-        generatedPdfFile?.let { file ->
-            val fileUri = FileProvider.getUriForFile(
-                this,
-                "com.chiaying.pictopdf.fileprovider",
-                file
-            )
+    private fun openPdf(file: File) {
+        val fileUri = FileProvider.getUriForFile(
+            this,
+            "com.chiaying.pictopdf.fileprovider",
+            file
+        )
 
-            val openIntent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(fileUri, "application/pdf")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
+        val openIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(fileUri, "application/pdf")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
 
-            try {
-                startActivity(openIntent)
-            } catch (e: Exception) {
-                Toast.makeText(this, "No application available to view PDF", Toast.LENGTH_SHORT).show()
-            }
+        try {
+            startActivity(openIntent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "No application available to view PDF", Toast.LENGTH_SHORT).show()
         }
     }
 

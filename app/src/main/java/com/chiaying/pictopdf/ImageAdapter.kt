@@ -10,8 +10,10 @@ import com.chiaying.pictopdf.databinding.ItemImageBinding
 
 class ImageAdapter(
     private val context: Context,
-    private var images: List<Uri>
+    private var images: MutableList<Uri>
 ) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
+
+    var onRemoveClickListener: ((Uri) -> Unit)? = null
     
     class ImageViewHolder(val binding: ItemImageBinding) : RecyclerView.ViewHolder(binding.root)
     
@@ -32,12 +34,16 @@ class ImageAdapter(
         // Set image name (simplified - just showing the last part of the URI)
         val imageName = imageUri.lastPathSegment ?: "Image ${position + 1}"
         holder.binding.tvImageName.text = imageName
+
+        holder.binding.btnRemoveImage.setOnClickListener {
+            onRemoveClickListener?.invoke(imageUri)
+        }
     }
     
     override fun getItemCount(): Int = images.size
     
     fun updateImages(newImages: List<Uri>) {
-        images = newImages
+        images = newImages.toMutableList()
         notifyDataSetChanged()
     }
 }

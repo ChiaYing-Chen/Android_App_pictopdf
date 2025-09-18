@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PictoPDF</string>
-    <string name="select_images">選擇照片</string>
+    <string name="select_images">依相片庫選擇照片</string>
     <string name="convert_to_pdf">轉換為PDF</string>
     <string name="open_pdf">開啟PDF</string>
     <string name="share_pdf">分享PDF</string>
