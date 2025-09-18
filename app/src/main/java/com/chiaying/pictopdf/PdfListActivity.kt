@@ -29,6 +29,12 @@ class PdfListActivity : AppCompatActivity() {
         loadPdfFiles()
     }
     
+    override fun onResume() {
+        super.onResume()
+        // 每次回到這個頁面時重新載入PDF檔案
+        loadPdfFiles()
+    }
+    
     private fun setupRecyclerView() {
         pdfAdapter = PdfAdapter(pdfFiles)
         binding.rvPdfs.apply {

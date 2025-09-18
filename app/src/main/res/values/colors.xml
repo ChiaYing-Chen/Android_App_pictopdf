@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- 莫蘭迪色系 -->
+    <color name="morandi_green">#8FBC8F</color>          <!-- 莫蘭迪綠色 -->
+    <color name="morandi_green_dark">#6B8E6B</color>     <!-- 深一點的莫蘭迪綠色 -->
+    <color name="morandi_green_light">#A8CCA8</color>    <!-- 淺一點的莫蘭迪綠色 -->
+    <color name="off_white">#F5F5F5</color>              <!-- 灰白色背景 -->
+    <color name="light_gray">#EEEEEE</color>             <!-- 淺灰色 -->
 </resources>
