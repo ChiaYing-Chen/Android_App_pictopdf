@@ -24,9 +24,8 @@ class PdfGenerator {
         val timestamp = dateFormat.format(Date())
         val pdfFileName = "PictoPDF_$timestamp.pdf"
         
-        // 使用Documents/pictopdf目錄
-        val documentsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOCUMENTS)
-        val pdfDirectory = File(documentsDir, "pictopdf")
+        // 使用應用程式內部存儲的 pdfs 目錄
+        val pdfDirectory = File(context.filesDir, "pdfs")
         val pdfFile = File(pdfDirectory, pdfFileName)
         
         // 確保目錄存在

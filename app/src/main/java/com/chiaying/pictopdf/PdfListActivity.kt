@@ -60,9 +60,8 @@ class PdfListActivity : AppCompatActivity() {
     }
     
     private fun loadPdfFiles() {
-        // 使用Documents/pictopdf目錄
-        val documentsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOCUMENTS)
-        val pdfDirectory = File(documentsDir, "pictopdf")
+        // 使用應用程式內部存儲的 pdfs 目錄
+        val pdfDirectory = File(filesDir, "pdfs")
         
         if (pdfDirectory.exists()) {
             // 過濾PDF檔案
@@ -73,7 +72,7 @@ class PdfListActivity : AppCompatActivity() {
             if (files != null) {
                 pdfFiles.clear()
                 pdfFiles.addAll(files.sortedByDescending { it.lastModified() })
-                pdfAdapter.updatePdfFiles(pdfFiles)
+                pdfAdapter.updatePdfFiles(pdfFiles.toList())
             }
         } else {
             // 如果目錄不存在，嘗試創建
