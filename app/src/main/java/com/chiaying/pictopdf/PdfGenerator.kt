@@ -24,24 +24,14 @@ class PdfGenerator {
         val timestamp = dateFormat.format(Date())
         val pdfFileName = "PictoPDF_$timestamp.pdf"
         
-        // 使用Application Context確保路徑一致性
-        val appContext = context.applicationContext
-        val pdfDirectory = appContext.getExternalFilesDir(null)
+        // 使用Documents/pictopdf目錄
+        val documentsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOCUMENTS)
+        val pdfDirectory = File(documentsDir, "pictopdf")
         val pdfFile = File(pdfDirectory, pdfFileName)
         
-        // 詳細調試日誌
-        android.util.Log.d("PdfGenerator", "=== PDF 創建開始 ===")
-        android.util.Log.d("PdfGenerator", "原始Context類型: ${context.javaClass.simpleName}")
-        android.util.Log.d("PdfGenerator", "Application Context類型: ${appContext.javaClass.simpleName}")
-        android.util.Log.d("PdfGenerator", "PDF目錄: $pdfDirectory")
-        android.util.Log.d("PdfGenerator", "PDF檔案路徑: ${pdfFile.absolutePath}")
-        android.util.Log.d("PdfGenerator", "目錄是否存在: ${pdfDirectory?.exists()}")
-        android.util.Log.d("PdfGenerator", "目錄是否可寫: ${pdfDirectory?.canWrite()}")
-        
         // 確保目錄存在
-        if (pdfDirectory != null && !pdfDirectory.exists()) {
-            val created = pdfDirectory.mkdirs()
-            android.util.Log.d("PdfGenerator", "目錄創建結果: $created")
+        if (!pdfDirectory.exists()) {
+            pdfDirectory.mkdirs()
         }
         
         val pdfWriter = PdfWriter(FileOutputStream(pdfFile))
@@ -49,29 +39,13 @@ class PdfGenerator {
         val document = Document(pdfDocument)
         
         try {
-            android.util.Log.d("PdfGenerator", "開始添加 ${imageFiles.size} 張圖片")
-            imageFiles.forEachIndexed { index, imageFile ->
-                android.util.Log.d("PdfGenerator", "添加圖片 ${index + 1}: ${imageFile.absolutePath}")
+            imageFiles.forEach { imageFile ->
                 addImageToDocument(document, imageFile)
             }
         } finally {
             document.close()
             pdfDocument.close()
             pdfWriter.close()
-        }
-        
-        // 檔案創建後驗證
-        android.util.Log.d("PdfGenerator", "=== PDF 創建完成 ===")
-        android.util.Log.d("PdfGenerator", "檔案是否存在: ${pdfFile.exists()}")
-        android.util.Log.d("PdfGenerator", "檔案大小: ${pdfFile.length()} bytes")
-        android.util.Log.d("PdfGenerator", "檔案可讀: ${pdfFile.canRead()}")
-        
-        // 列出目錄中的所有檔案
-        pdfDirectory?.listFiles()?.let { files ->
-            android.util.Log.d("PdfGenerator", "目錄中所有檔案 (${files.size} 個):")
-            files.forEach { file ->
-                android.util.Log.d("PdfGenerator", "  - ${file.name} (${file.length()} bytes)")
-            }
         }
         
         return listOf(pdfFile)

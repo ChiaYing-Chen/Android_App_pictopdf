@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- External storage Documents directory -->
+    <external-path name="documents" path="Documents" />
+    <!-- Legacy external files path for backward compatibility -->
     <external-files-path name="external_files" path="."/>
     <external-cache-path name="external_cache" path="."/>
     <cache-path name="cache" path="."/>

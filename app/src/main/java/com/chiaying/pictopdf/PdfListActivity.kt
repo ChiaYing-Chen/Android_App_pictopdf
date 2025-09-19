@@ -60,56 +60,26 @@ class PdfListActivity : AppCompatActivity() {
     }
     
     private fun loadPdfFiles() {
-        // 使用Application Context確保路徑一致性
-        val appContext = applicationContext
-        val pdfDirectory = appContext.getExternalFilesDir(null)
+        // 使用Documents/pictopdf目錄
+        val documentsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOCUMENTS)
+        val pdfDirectory = File(documentsDir, "pictopdf")
         
-        // 詳細調試日誌
-        android.util.Log.d("PdfListActivity", "=== PDF 清單載入開始 ===")
-        android.util.Log.d("PdfListActivity", "Activity類型: ${this.javaClass.simpleName}")
-        android.util.Log.d("PdfListActivity", "Application Context類型: ${appContext.javaClass.simpleName}")
-        android.util.Log.d("PdfListActivity", "PDF目錄: $pdfDirectory")
-        android.util.Log.d("PdfListActivity", "目錄是否存在: ${pdfDirectory?.exists()}")
-        android.util.Log.d("PdfListActivity", "目錄是否可讀: ${pdfDirectory?.canRead()}")
-        
-        if (pdfDirectory != null && pdfDirectory.exists()) {
-            // 列出所有檔案
-            val allFiles = pdfDirectory.listFiles()
-            android.util.Log.d("PdfListActivity", "目錄中總檔案數: ${allFiles?.size}")
-            
-            allFiles?.forEach { file ->
-                android.util.Log.d("PdfListActivity", "檔案: ${file.name}")
-                android.util.Log.d("PdfListActivity", "  - 大小: ${file.length()} bytes")
-                android.util.Log.d("PdfListActivity", "  - 副檔名: ${file.extension}")
-                android.util.Log.d("PdfListActivity", "  - 是否為PDF: ${file.extension.lowercase() == "pdf"}")
-                android.util.Log.d("PdfListActivity", "  - 是否為檔案: ${file.isFile}")
-                android.util.Log.d("PdfListActivity", "  - 最後修改: ${java.util.Date(file.lastModified())}")
-            }
-            
+        if (pdfDirectory.exists()) {
             // 過濾PDF檔案
             val files = pdfDirectory.listFiles { file ->
-                val isPdf = file.isFile && file.extension.lowercase() == "pdf"
-                android.util.Log.d("PdfListActivity", "過濾檔案 ${file.name}: isPdf=$isPdf")
-                isPdf
+                file.isFile && file.extension.lowercase() == "pdf"
             }
             
             if (files != null) {
                 pdfFiles.clear()
                 pdfFiles.addAll(files.sortedByDescending { it.lastModified() })
                 pdfAdapter.updatePdfFiles(pdfFiles)
-                android.util.Log.d("PdfListActivity", "找到 ${pdfFiles.size} 個PDF檔案")
-                
-                pdfFiles.forEach { file ->
-                    android.util.Log.d("PdfListActivity", "PDF清單: ${file.name} (${file.length()} bytes)")
-                }
-            } else {
-                android.util.Log.w("PdfListActivity", "listFiles() 返回 null")
             }
         } else {
-            android.util.Log.e("PdfListActivity", "目錄不存在或無法存取: $pdfDirectory")
+            // 如果目錄不存在，嘗試創建
+            pdfDirectory.mkdirs()
         }
         
-        android.util.Log.d("PdfListActivity", "=== PDF 清單載入完成 ===")
         updateUI()
     }
     
@@ -124,39 +94,45 @@ class PdfListActivity : AppCompatActivity() {
     }
     
     private fun openPdf(file: File) {
-        val fileUri = FileProvider.getUriForFile(
-            this,
-            "com.chiaying.pictopdf.fileprovider",
-            file
-        )
-
-        val openIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(fileUri, "application/pdf")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
         try {
+            val fileUri = FileProvider.getUriForFile(
+                this,
+                "com.chiaying.pictopdf.fileprovider",
+                file
+            )
+
+            val openIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(fileUri, "application/pdf")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
             startActivity(openIntent)
         } catch (e: Exception) {
+            android.util.Log.e("PdfListActivity", "開啟PDF失敗", e)
             Toast.makeText(this, "無法開啟 PDF，請安裝 PDF 閱讀器", Toast.LENGTH_SHORT).show()
         }
     }
     
     private fun sharePdf(file: File) {
-        val fileUri = FileProvider.getUriForFile(
-            this,
-            "com.chiaying.pictopdf.fileprovider",
-            file
-        )
+        try {
+            val fileUri = FileProvider.getUriForFile(
+                this,
+                "com.chiaying.pictopdf.fileprovider",
+                file
+            )
 
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/pdf"
-            putExtra(Intent.EXTRA_STREAM, fileUri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            val chooser = Intent.createChooser(shareIntent, "分享 PDF")
+            startActivity(chooser)
+        } catch (e: Exception) {
+            android.util.Log.e("PdfListActivity", "分享PDF失敗", e)
+            Toast.makeText(this, "分享失敗，請重試", Toast.LENGTH_SHORT).show()
         }
-
-        val chooser = Intent.createChooser(shareIntent, "分享 PDF")
-        startActivity(chooser)
     }
     
     private fun splitPdf(file: File) {
