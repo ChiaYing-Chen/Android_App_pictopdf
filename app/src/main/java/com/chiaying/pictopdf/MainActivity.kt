@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
@@ -97,27 +98,20 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     }
     
     private fun setupClickListeners() {
-        binding.btnSelectImages.setOnClickListener {
-            if (hasPermissions()) {
-                openImagePicker()
-            } else {
-                requestPermissions()
-            }
+        // 依相片庫自行挑選
+        binding.btnPickManually.setOnClickListener {
+            if (hasPermissions()) openImagePicker() else requestPermissions()
         }
-        
+
+        // 依時間範圍挑選
+        binding.btnPickByTime.setOnClickListener {
+            showDateTimePicker()
+        }
+
         binding.btnConvertToPdf.setOnClickListener {
             convertToPdf()
         }
 
-    // 已移除舊的分頁導覽，改用首頁切換
-
-        binding.tvDateRange.setOnClickListener {
-            showDateTimePicker()
-        }
-
-        binding.btnOrganizePhotos.setOnClickListener {
-            filterPhotosByDate()
-        }
 
         binding.btnClearSelection.setOnClickListener {
             clearSelectedImages()
@@ -168,7 +162,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding.btnConvertToPdf.isEnabled = count > 0
         binding.btnClearSelection.isEnabled = count > 0
 
-        binding.btnOrganizePhotos.isEnabled = isDateRangeSet
+        // convert 可用性維持不變，其餘由手動挑選或時間挑選觸發
     }
 
     private fun setupModeToggle() {
@@ -262,10 +256,10 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding.tvProgress.text = message
         
         // Disable buttons during processing
-        binding.btnSelectImages.isEnabled = !show
+        binding.btnPickManually.isEnabled = !show
+        binding.btnPickByTime.isEnabled = !show
         binding.btnConvertToPdf.isEnabled = !show && selectedImages.isNotEmpty()
         binding.btnClearSelection.isEnabled = !show && selectedImages.isNotEmpty()
-        binding.btnOrganizePhotos.isEnabled = !show && isDateRangeSet
     }
     
     private fun sharePdf(file: File) {
@@ -353,7 +347,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 if (endDateTime.after(startDateTime)) {
                     isDateRangeSet = true
                     updateDateRangeText()
-                    updateUI()
+                    // 時間設定完成後，自動依時間範圍篩選照片
+                    filterPhotosByDate()
                 } else {
                     Toast.makeText(this, "結束時間必須晚於開始時間", Toast.LENGTH_SHORT).show()
                 }

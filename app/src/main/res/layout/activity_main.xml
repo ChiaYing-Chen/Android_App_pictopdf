@@ -9,17 +9,7 @@
     android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnPrimary"
-        android:background="?attr/colorPrimary"
-        android:gravity="center"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp" />
+    <!-- 移除重複的大標題（依使用者需求） -->
 
     <!-- 模式切換：照片 / PDF -->
     <com.google.android.material.button.MaterialButtonToggleGroup
@@ -27,7 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        app:singleSelection="true">
+        app:singleSelection="true"
+        app:selectionRequired="true">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnModePhotos"
@@ -36,7 +27,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="照片"
-            android:checked="true"/>
+            android:checked="true"
+            app:backgroundTint="@color/toggle_bg_tint"
+            android:textColor="@color/toggle_text_color"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnModePdfs"
@@ -44,7 +37,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="PDF"/>
+            android:text="PDF"
+            app:backgroundTint="@color/toggle_bg_tint"
+            android:textColor="@color/toggle_text_color"/>
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- 照片區塊 -->
@@ -68,53 +63,69 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginBottom="16dp" />
-
-        <LinearLayout
+        <!-- 照片選擇方式卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPhotoPickMode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="8dp"
-            android:background="?attr/colorSurfaceVariant"
-            android:padding="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="時間範圍"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardCornerRadius="12dp"
+            app:strokeColor="?attr/colorOutline"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="12dp">
 
                 <TextView
-                    android:id="@+id/tvDateRange"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="點此設定日期時間範圍"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:gravity="center"
-                    android:padding="8dp"/>
-
-                <Button
-                    android:id="@+id/btnOrganizePhotos"
+                    android:id="@+id/tvPickModeTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="依時間篩選照片" />
-            </LinearLayout>
-        </LinearLayout>
+                    android:text="照片選擇方式"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnSelectImages"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/select_images"
-            android:layout_marginBottom="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <Button
+                        android:id="@+id/btnPickByTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="時間篩選"/>
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="1dp"/>
+
+                    <Button
+                        android:id="@+id/btnPickManually"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="自行挑選"/>
+                </LinearLayout>
+
+                <!-- 顯示挑選時間後的結果 -->
+                <TextView
+                    android:id="@+id/tvDateRange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:gravity="center"
+                    android:paddingTop="4dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <Button
             android:id="@+id/btnClearSelection"
