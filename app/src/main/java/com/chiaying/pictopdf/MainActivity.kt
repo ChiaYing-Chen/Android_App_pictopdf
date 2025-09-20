@@ -54,10 +54,20 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         if (uris.isNotEmpty()) {
-            selectedImages.clear()
-            selectedImages.addAll(uris)
-            updateUI()
+            // Append instead of overwrite; de-duplicate by string form
+            val existing = selectedImages.map { it.toString() }.toMutableSet()
+            var added = 0
+            uris.forEach { uri ->
+                if (existing.add(uri.toString())) {
+                    selectedImages.add(uri)
+                    added++
+                }
+            }
             imageAdapter.updateImages(selectedImages)
+            updateUI()
+            if (added > 0) {
+                Toast.makeText(this, "已新增 $added 張照片", Toast.LENGTH_SHORT).show()
+            }
         }
     }
     
