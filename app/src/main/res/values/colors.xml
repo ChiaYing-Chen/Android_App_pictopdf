@@ -9,21 +9,15 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- Material 3 dynamic color fallbacks for Android < 12 -->
-    <color name="material_dynamic_primary40">#6750A4</color>
-    <color name="material_dynamic_primary100">#FFFFFF</color>
-    <color name="material_dynamic_primary90">#EADDFF</color>
-    <color name="material_dynamic_primary10">#21005D</color>
-    
-    <color name="material_dynamic_secondary40">#625B71</color>
-    <color name="material_dynamic_secondary100">#FFFFFF</color>
-    <color name="material_dynamic_secondary90">#E8DEF8</color>
-    <color name="material_dynamic_secondary10">#1D192B</color>
-    
-    <color name="material_dynamic_neutral95">#FFFBFE</color>
-    <color name="material_dynamic_neutral10">#1C1B1F</color>
-    <color name="material_dynamic_neutral_variant90">#E7E0EC</color>
-    <color name="material_dynamic_neutral_variant30">#49454F</color>
+    <!-- Fixed dark theme palette (VS Code-like) -->
+    <color name="vscode_bg">#1E1E1E</color>
+    <color name="vscode_surface">#252526</color>
+    <color name="vscode_surface_variant">#2D2D2D</color>
+    <color name="vscode_outline">#3C3C3C</color>
+    <color name="vscode_primary">#0E639C</color>
+    <color name="vscode_on_primary">#FFFFFF</color>
+    <color name="vscode_on_surface">#D4D4D4</color>
+    <color name="vscode_on_surface_variant">#9DA3A6</color>
     
     <!-- 保留莫蘭迪色系作為備用 -->
     <color name="morandi_green">#8FBC8F</color>

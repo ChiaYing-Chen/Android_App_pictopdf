@@ -11,6 +11,10 @@ class PdfAdapter(private var pdfFiles: List<File>) : RecyclerView.Adapter<PdfAda
     var onOpenClickListener: ((File) -> Unit)? = null
     var onShareClickListener: ((File) -> Unit)? = null
     var onSplitClickListener: ((File) -> Unit)? = null
+    var onSelectionChanged: ((selectedCount: Int) -> Unit)? = null
+
+    private val selectedSet = linkedSetOf<File>()
+    var selectionMode: Boolean = true // always show checkbox for bulk actions
 
     class PdfViewHolder(val binding: ItemPdfBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -23,6 +27,15 @@ class PdfAdapter(private var pdfFiles: List<File>) : RecyclerView.Adapter<PdfAda
         val pdfFile = pdfFiles[position]
         holder.binding.tvPdfName.text = pdfFile.name
         holder.binding.tvPdfSize.text = String.format("%.1fMB", pdfFile.length() / 1024f / 1024f)
+
+        // checkbox visibility and state
+        holder.binding.cbSelect.isChecked = selectedSet.contains(pdfFile)
+        holder.binding.cbSelect.setOnCheckedChangeListener(null)
+        holder.binding.cbSelect.isChecked = selectedSet.contains(pdfFile)
+        holder.binding.cbSelect.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) selectedSet.add(pdfFile) else selectedSet.remove(pdfFile)
+            onSelectionChanged?.invoke(selectedSet.size)
+        }
 
         holder.binding.btnOpen.setOnClickListener {
             onOpenClickListener?.invoke(pdfFile)
@@ -43,6 +56,23 @@ class PdfAdapter(private var pdfFiles: List<File>) : RecyclerView.Adapter<PdfAda
 
     fun updatePdfFiles(newPdfFiles: List<File>) {
         pdfFiles = newPdfFiles
+        selectedSet.clear()
         notifyDataSetChanged()
+        onSelectionChanged?.invoke(0)
     }
+
+    fun selectAll() {
+        selectedSet.clear()
+        selectedSet.addAll(pdfFiles)
+        notifyDataSetChanged()
+        onSelectionChanged?.invoke(selectedSet.size)
+    }
+
+    fun clearSelection() {
+        selectedSet.clear()
+        notifyDataSetChanged()
+        onSelectionChanged?.invoke(0)
+    }
+
+    fun getSelectedFiles(): List<File> = selectedSet.toList()
 }

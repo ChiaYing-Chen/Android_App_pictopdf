@@ -95,6 +95,40 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         pdfAdapter.onOpenClickListener = { file -> openPdf(file) }
         pdfAdapter.onShareClickListener = { file -> sharePdf(file) }
         pdfAdapter.onSplitClickListener = { file -> splitPdf(file) }
+        pdfAdapter.onSelectionChanged = { selectedCount ->
+            binding.btnDeleteSelectedPdfs.isEnabled = selectedCount > 0
+            binding.btnRenameSelectedPdf.isEnabled = selectedCount == 1
+        }
+
+        binding.btnSelectAllPdfs.setOnClickListener {
+            pdfAdapter.selectAll()
+        }
+
+        binding.btnDeleteSelectedPdfs.setOnClickListener {
+            val toDelete = pdfAdapter.getSelectedFiles()
+            if (toDelete.isEmpty()) return@setOnClickListener
+            CoroutineScope(Dispatchers.IO).launch {
+                var success = true
+                toDelete.forEach { f ->
+                    if (!f.delete()) success = false
+                }
+                withContext(Dispatchers.Main) {
+                    loadPdfFiles()
+                    if (success) {
+                        Toast.makeText(this@MainActivity, "已刪除 ${toDelete.size} 個檔案", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MainActivity, "部分檔案刪除失敗", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        binding.btnRenameSelectedPdf.setOnClickListener {
+            val selected = pdfAdapter.getSelectedFiles()
+            if (selected.size != 1) return@setOnClickListener
+            val target = selected.first()
+            showRenameDialog(target)
+        }
     }
     
     private fun setupClickListeners() {
@@ -103,9 +137,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             if (hasPermissions()) openImagePicker() else requestPermissions()
         }
 
-        // 依時間範圍挑選
+        // 依時間範圍挑選：顯示快速選項（近1小時/4小時/8小時/自訂）
         binding.btnPickByTime.setOnClickListener {
-            showDateTimePicker()
+            showQuickTimeOptions()
         }
 
         binding.btnConvertToPdf.setOnClickListener {
@@ -194,6 +228,40 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         pdfFiles.addAll(files.sortedByDescending { it.lastModified() })
         pdfAdapter.updatePdfFiles(pdfFiles.toList())
         binding.tvPdfEmptyMessage.visibility = if (pdfFiles.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+    }
+
+    private fun showRenameDialog(file: File) {
+        val context = this
+        val editText = android.widget.EditText(context).apply {
+            setText(file.nameWithoutExtension)
+            hint = "輸入新檔名"
+        }
+        androidx.appcompat.app.AlertDialog.Builder(context)
+            .setTitle("重新命名")
+            .setView(editText)
+            .setPositiveButton("確定") { dialog, _ ->
+                val newNameRaw = editText.text?.toString()?.trim().orEmpty()
+                if (newNameRaw.isEmpty()) {
+                    Toast.makeText(context, "檔名不可為空", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                val safeName = newNameRaw.replace(Regex("[\\\\/:*?\"<>|]"), "_")
+                val newFile = File(file.parentFile, "$safeName.${file.extension}")
+                if (newFile.exists()) {
+                    Toast.makeText(context, "同名檔案已存在", Toast.LENGTH_SHORT).show()
+                } else {
+                    val ok = file.renameTo(newFile)
+                    if (ok) {
+                        Toast.makeText(context, "已重新命名", Toast.LENGTH_SHORT).show()
+                        loadPdfFiles()
+                    } else {
+                        Toast.makeText(context, "重新命名失敗", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("取消") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
     
     private fun convertToPdf() {
@@ -332,6 +400,45 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 showEndDateTimePicker()
             }, currentDateTime.get(Calendar.HOUR_OF_DAY), currentDateTime.get(Calendar.MINUTE), true).show()
         }, currentDateTime.get(Calendar.YEAR), currentDateTime.get(Calendar.MONTH), currentDateTime.get(Calendar.DAY_OF_MONTH)).show()
+    }
+
+    private fun showQuickTimeOptions() {
+        val options = arrayOf("近1小時", "近4小時", "近8小時", "自訂")
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("時間篩選")
+            .setItems(options) { dialog, which ->
+                val now = Calendar.getInstance()
+                when (which) {
+                    0 -> { // 近1小時
+                        endDateTime = now
+                        startDateTime = (now.clone() as Calendar).apply { add(Calendar.HOUR_OF_DAY, -1) }
+                        isDateRangeSet = true
+                        updateDateRangeText()
+                        filterPhotosByDate()
+                    }
+                    1 -> { // 近4小時
+                        endDateTime = now
+                        startDateTime = (now.clone() as Calendar).apply { add(Calendar.HOUR_OF_DAY, -4) }
+                        isDateRangeSet = true
+                        updateDateRangeText()
+                        filterPhotosByDate()
+                    }
+                    2 -> { // 近8小時
+                        endDateTime = now
+                        startDateTime = (now.clone() as Calendar).apply { add(Calendar.HOUR_OF_DAY, -8) }
+                        isDateRangeSet = true
+                        updateDateRangeText()
+                        filterPhotosByDate()
+                    }
+                    else -> {
+                        // 自訂：沿用現有日期時間挑選流程
+                        showDateTimePicker()
+                    }
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("取消") { d, _ -> d.dismiss() }
+            .show()
     }
 
     private fun showEndDateTimePicker() {

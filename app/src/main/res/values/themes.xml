@@ -1,35 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme for Android versions below 12 -->
-    <style name="Theme.PictoPDF" parent="Theme.Material3.DayNight">
-        <!-- Use modern Material 3 colors for consistency -->
-        <!-- Primary colors -->
-        <item name="colorPrimary">@color/material_dynamic_primary40</item>
-        <item name="colorOnPrimary">@color/material_dynamic_primary100</item>
-        <item name="colorPrimaryContainer">@color/material_dynamic_primary90</item>
-        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary10</item>
-        
-        <!-- Secondary colors -->
-        <item name="colorSecondary">@color/material_dynamic_secondary40</item>
-        <item name="colorOnSecondary">@color/material_dynamic_secondary100</item>
-        <item name="colorSecondaryContainer">@color/material_dynamic_secondary90</item>
-        <item name="colorOnSecondaryContainer">@color/material_dynamic_secondary10</item>
-        
-        <!-- Surface colors -->
-        <item name="colorSurface">@color/material_dynamic_neutral95</item>
-        <item name="colorOnSurface">@color/material_dynamic_neutral10</item>
-        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant90</item>
-        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
-        
-        <!-- Background colors -->
-        <item name="android:colorBackground">@color/material_dynamic_neutral95</item>
-        
-        <!-- Status bar color -->
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
-        <item name="android:navigationBarColor">?attr/colorSurface</item>
-        
-        <!-- Light status and navigation bars -->
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
+    <!-- Fixed dark theme (VS Code-like), no dynamic colors -->
+    <style name="Theme.PictoPDF" parent="Theme.Material3.Dark">
+        <item name="colorPrimary">@color/vscode_primary</item>
+        <item name="colorOnPrimary">@color/vscode_on_primary</item>
+        <item name="colorSurface">@color/vscode_surface</item>
+        <item name="colorOnSurface">@color/vscode_on_surface</item>
+        <item name="colorSurfaceVariant">@color/vscode_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/vscode_on_surface_variant</item>
+        <item name="android:colorBackground">@color/vscode_bg</item>
+        <item name="android:statusBarColor">@color/vscode_surface</item>
+        <item name="android:navigationBarColor">@color/vscode_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>
