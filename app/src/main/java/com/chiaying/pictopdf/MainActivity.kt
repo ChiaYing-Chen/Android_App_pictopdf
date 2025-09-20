@@ -54,10 +54,15 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         if (uris.isNotEmpty()) {
-            selectedImages.clear()
-            selectedImages.addAll(uris)
-            updateUI()
+            // Append instead of overwrite; de-duplicate by string form
+            val existing = selectedImages.map { it.toString() }.toMutableSet()
+            uris.forEach { uri ->
+                if (existing.add(uri.toString())) {
+                    selectedImages.add(uri)
+                }
+            }
             imageAdapter.updateImages(selectedImages)
+            updateUI()
         }
     }
     

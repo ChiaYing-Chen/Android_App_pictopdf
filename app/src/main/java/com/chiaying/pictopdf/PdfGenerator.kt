@@ -20,13 +20,10 @@ class PdfGenerator {
     }
     
     suspend fun createPdfFromImages(context: Context, imageFiles: List<File>): List<File> {
-        val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-        val timestamp = dateFormat.format(Date())
-        val pdfFileName = "PictoPDF_$timestamp.pdf"
-        
-        // 使用應用程式內部存儲的 pdfs 目錄
-        val pdfDirectory = File(context.filesDir, "pdfs")
-        val pdfFile = File(pdfDirectory, pdfFileName)
+    // 使用應用程式內部存儲的 pdfs 目錄
+    val pdfDirectory = File(context.filesDir, "pdfs")
+    // 依據流水號取得下一個可用檔名（PIC000001.pdf ...）
+    val (pdfFile, seqUsed) = getNextPdfFile(context, pdfDirectory)
         
         // 確保目錄存在
         if (!pdfDirectory.exists()) {
@@ -37,14 +34,20 @@ class PdfGenerator {
         val pdfDocument = PdfDocument(pdfWriter)
         val document = Document(pdfDocument)
         
+        var success = false
         try {
             imageFiles.forEach { imageFile ->
                 addImageToDocument(document, imageFile)
             }
+            success = true
         } finally {
             document.close()
             pdfDocument.close()
             pdfWriter.close()
+        }
+        // 僅在成功產生時，更新下一次的流水號
+        if (success) {
+            updateNextSequence(context, seqUsed + 1)
         }
         
         return listOf(pdfFile)
@@ -89,4 +92,25 @@ class PdfGenerator {
             e.printStackTrace()
         }
     }
+}
+
+private const val PREFS_NAME = "pictopdf_prefs"
+private const val KEY_PDF_SEQUENCE = "pdf_sequence"
+
+private fun getNextPdfFile(context: Context, dir: File): Pair<File, Int> {
+    if (!dir.exists()) dir.mkdirs()
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    var seq = prefs.getInt(KEY_PDF_SEQUENCE, 1)
+    var candidate: File
+    do {
+        val name = String.format(Locale.getDefault(), "PIC%06d.pdf", seq)
+        candidate = File(dir, name)
+        if (candidate.exists()) seq++ else break
+    } while (true)
+    return candidate to seq
+}
+
+private fun updateNextSequence(context: Context, nextSeq: Int) {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    prefs.edit().putInt(KEY_PDF_SEQUENCE, nextSeq).apply()
 }

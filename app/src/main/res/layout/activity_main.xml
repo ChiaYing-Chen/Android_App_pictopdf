@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="?attr/colorSurface"
+    android:background="@color/vscode_bg"
     tools:context=".MainActivity">
 
     <!-- 移除重複的大標題（依使用者需求） -->
@@ -135,12 +135,12 @@
             android:layout_marginBottom="8dp"
             android:enabled="false" />
 
-        <LinearLayout
+            <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginBottom="8dp"
-            android:background="?attr/colorSurfaceVariant"
+                android:background="@color/vscode_surface"
             android:padding="8dp">
 
             <TextView
@@ -182,15 +182,15 @@
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:checked="true" />
             </RadioGroup>
-        </LinearLayout>
-
         <Button
             android:id="@+id/btnConvertToPdf"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:background="@color/vscode_surface"
             android:text="@string/convert_to_pdf"
             android:enabled="false"
             android:layout_marginBottom="8dp" />
+    </LinearLayout>
+
     </LinearLayout>
 
     <!-- PDF 區塊 -->
