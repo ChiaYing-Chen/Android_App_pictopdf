@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Fixed dark theme (VS Code-like), no dynamic colors -->
+    <style name="Theme.PictoPDF" parent="Theme.Material3.Dark">
+        <item name="colorPrimary">@color/vscode_primary</item>
+        <item name="colorOnPrimary">@color/vscode_on_primary</item>
+        <item name="colorSurface">@color/vscode_surface</item>
+        <item name="colorOnSurface">@color/vscode_on_surface</item>
+        <item name="colorSurfaceVariant">@color/vscode_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/vscode_on_surface_variant</item>
+        <item name="android:colorBackground">@color/vscode_bg</item>
+        <item name="android:statusBarColor">@color/vscode_surface</item>
+        <item name="android:navigationBarColor">@color/vscode_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

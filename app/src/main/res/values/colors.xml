@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Legacy colors -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Fixed dark theme palette (VS Code-like) -->
+    <color name="vscode_bg">#1E1E1E</color>
+    <color name="vscode_surface">#252526</color>
+    <color name="vscode_surface_variant">#2D2D2D</color>
+    <color name="vscode_outline">#3C3C3C</color>
+    <color name="vscode_primary">#0E639C</color>
+    <color name="vscode_on_primary">#FFFFFF</color>
+    <color name="vscode_on_surface">#D4D4D4</color>
+    <color name="vscode_on_surface_variant">#9DA3A6</color>
+    
+    <!-- 保留莫蘭迪色系作為備用 -->
+    <color name="morandi_green">#8FBC8F</color>
+    <color name="morandi_green_dark">#6B8E6B</color>
+    <color name="morandi_green_light">#A8CCA8</color>
+    <color name="off_white">#F5F5F5</color>
+    <color name="light_gray">#EEEEEE</color>
+    <color name="dark_green">#4A6741</color>
+    <color name="dark_text">#333333</color>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PictoPDF</string>
+    <string name="select_images">依相片庫選擇照片</string>
+    <string name="convert_to_pdf">轉換為PDF</string>
+    <string name="open_pdf">開啟PDF</string>
+    <string name="share_pdf">分享PDF</string>
+    <string name="no_images_selected">請先選擇照片</string>
+    <string name="pdf_created">PDF已建立</string>
+    <string name="error_creating_pdf">建立PDF時發生錯誤</string>
+    <string name="permission_required">需要檔案存取權限</string>
+    <string name="converting">正在轉換...</string>
+    <string name="compressing_images">正在壓縮照片...</string>
+    <string name="selected_images">已選擇 %d 張照片</string>
+</resources>
