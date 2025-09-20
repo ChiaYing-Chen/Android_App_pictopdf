@@ -31,7 +31,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageAdapter: ImageAdapter
+    private lateinit var pdfAdapter: PdfAdapter
     private val selectedImages = mutableListOf<Uri>()
+    private val pdfFiles = mutableListOf<File>()
     private var startDateTime = Calendar.getInstance()
     private var endDateTime = Calendar.getInstance()
     private var isDateRangeSet = false
@@ -67,6 +69,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         setupRecyclerView()
         setupClickListeners()
         checkPermissions()
+        setupModeToggle()
+        loadPdfFiles()
     }
     
     private fun setupRecyclerView() {
@@ -80,6 +84,16 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             imageAdapter.updateImages(selectedImages)
             updateUI()
         }
+
+        pdfAdapter = PdfAdapter(pdfFiles)
+        binding.rvPdfs.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = pdfAdapter
+        }
+
+        pdfAdapter.onOpenClickListener = { file -> openPdf(file) }
+        pdfAdapter.onShareClickListener = { file -> sharePdf(file) }
+        pdfAdapter.onSplitClickListener = { file -> splitPdf(file) }
     }
     
     private fun setupClickListeners() {
@@ -95,10 +109,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             convertToPdf()
         }
 
-        binding.btnBrowsePdfs.setOnClickListener {
-            val intent = Intent(this, PdfListActivity::class.java)
-            startActivity(intent)
-        }
+    // 已移除舊的分頁導覽，改用首頁切換
 
         binding.tvDateRange.setOnClickListener {
             showDateTimePicker()
@@ -159,6 +170,37 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
         binding.btnOrganizePhotos.isEnabled = isDateRangeSet
     }
+
+    private fun setupModeToggle() {
+        // 預設選擇照片模式
+        binding.toggleMode.check(R.id.btnModePhotos)
+        binding.toggleMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            when (checkedId) {
+                R.id.btnModePhotos -> {
+                    binding.groupPhotos.visibility = android.view.View.VISIBLE
+                    binding.groupPdfs.visibility = android.view.View.GONE
+                }
+                R.id.btnModePdfs -> {
+                    binding.groupPhotos.visibility = android.view.View.GONE
+                    binding.groupPdfs.visibility = android.view.View.VISIBLE
+                    loadPdfFiles()
+                }
+            }
+        }
+    }
+
+    private fun loadPdfFiles() {
+        val pdfDirectory = File(filesDir, "pdfs")
+        if (!pdfDirectory.exists()) {
+            pdfDirectory.mkdirs()
+        }
+        val files = pdfDirectory.listFiles { f -> f.isFile && f.extension.lowercase() == "pdf" }?.toList() ?: emptyList()
+        pdfFiles.clear()
+        pdfFiles.addAll(files.sortedByDescending { it.lastModified() })
+        pdfAdapter.updatePdfFiles(pdfFiles.toList())
+        binding.tvPdfEmptyMessage.visibility = if (pdfFiles.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+    }
     
     private fun convertToPdf() {
         if (selectedImages.isEmpty()) {
@@ -196,10 +238,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                     showProgress(false)
                     if (pdfFiles.isNotEmpty()) {
                         Toast.makeText(this@MainActivity, "成功產生 ${pdfFiles.size} 個 PDF 檔案", Toast.LENGTH_SHORT).show()
-                        
-                        // 轉換成功後直接跳轉到PDF清單頁面
-                        val intent = Intent(this@MainActivity, PdfListActivity::class.java)
-                        startActivity(intent)
+                        // 切換到首頁 PDF 區並重新載入清單
+                        binding.toggleMode.check(R.id.btnModePdfs)
+                        loadPdfFiles()
                     } else {
                         Toast.makeText(this@MainActivity, "PDF 產生失敗", Toast.LENGTH_SHORT).show()
                     }
@@ -260,6 +301,27 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             startActivity(openIntent)
         } catch (e: Exception) {
             Toast.makeText(this, "No application available to view PDF", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun splitPdf(file: File) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val splitFiles = PdfSplitter.splitPdfBySize(file, 12 * 1024 * 1024)
+                withContext(Dispatchers.Main) {
+                    if (splitFiles.isNotEmpty()) {
+                        loadPdfFiles()
+                        Toast.makeText(this@MainActivity, "分割完成，共 ${splitFiles.size} 個檔案", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MainActivity, "分割失敗，請確認檔案格式", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "分割過程發生錯誤", Toast.LENGTH_SHORT).show()
+                }
+                e.printStackTrace()
+            }
         }
     }
 
