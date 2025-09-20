@@ -1,35 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Application theme for Android 12+ with Material You dynamic colors -->
-    <style name="Theme.PictoPDF" parent="Theme.Material3.DayNight">
-        <!-- Material You dynamic colors - these will automatically adapt to user's wallpaper -->
-        <!-- Primary colors follow system accent color -->
-        <item name="colorPrimary">@android:color/system_accent1_600</item>
-        <item name="colorOnPrimary">@android:color/system_accent1_0</item>
-        <item name="colorPrimaryContainer">@android:color/system_accent1_100</item>
-        <item name="colorOnPrimaryContainer">@android:color/system_accent1_900</item>
-        
-        <!-- Secondary colors -->
-        <item name="colorSecondary">@android:color/system_accent2_600</item>
-        <item name="colorOnSecondary">@android:color/system_accent2_0</item>
-        <item name="colorSecondaryContainer">@android:color/system_accent2_100</item>
-        <item name="colorOnSecondaryContainer">@android:color/system_accent2_900</item>
-        
-        <!-- Surface colors -->
-        <item name="colorSurface">@android:color/system_neutral1_50</item>
-        <item name="colorOnSurface">@android:color/system_neutral1_900</item>
-        <item name="colorSurfaceVariant">@android:color/system_neutral2_100</item>
-        <item name="colorOnSurfaceVariant">@android:color/system_neutral2_700</item>
-        
-        <!-- Background colors -->
-        <item name="android:colorBackground">@android:color/system_neutral1_50</item>
-        
-        <!-- Status bar color -->
-        <item name="android:statusBarColor">@android:color/system_accent1_600</item>
-        <item name="android:navigationBarColor">@android:color/system_neutral1_50</item>
-        
-        <!-- Enable edge-to-edge and light bars -->
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
+    <!-- Android 12+ 也維持固定深色主題，與 Android 15 一致 -->
+    <style name="Theme.PictoPDF" parent="Theme.Material3.Dark">
+        <item name="colorPrimary">@color/vscode_primary</item>
+        <item name="colorOnPrimary">@color/vscode_on_primary</item>
+        <item name="colorSurface">@color/vscode_surface</item>
+        <item name="colorOnSurface">@color/vscode_on_surface</item>
+        <item name="colorSurfaceVariant">@color/vscode_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/vscode_on_surface_variant</item>
+        <item name="android:colorBackground">@color/vscode_bg</item>
+        <item name="android:statusBarColor">@color/vscode_surface</item>
+        <item name="android:navigationBarColor">@color/vscode_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>
